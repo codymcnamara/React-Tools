@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>React Widgets</title>
+    <script src="https://fb.me/react-0.13.3.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <style media="screen">
+      .selected{
+        font-weight: bold;
+      }
+    </style>
+    <div id="tabs"></div>
+
+    <script type="text/jsx">
+      var Tabs = React.createClass({
+        getInitialState: function() {
+          return {focused: 0};
+        },
+        updateSelectedTab: function(newIndex){
+          this.setState ({ focused: newIndex});
+        },
+        render: function(){
+          var self = this;
+          var headers = this.props.items.map(function(item, i){
+            return <Header item={item} itemIndex={i} focusIndex={self.state.focused} updateTab={self.updateSelectedTab} />;
+          });
+          return(
+            <div>
+              <ul>
+                {headers}
+              </ul>
+              <article>{this.props.items[this.state.focused]["content"]}</article>
+            </div>
+          );
+        }
+      });
+
+      var Header = React.createClass({
+        clickHander: function(){
+          this.props.updateTab(this.props.itemIndex);
+        },
+        render: function(){
+          var activeClass = this.props.focusIndex == this.props.itemIndex ? 'selected' : '';
+          return (
+            <li onClick={this.clickHander} className={activeClass} >{this.props.item["title"]}</li>
+          );
+        }
+      });
+
+      var topics = [
+        {title: "Money", content: "Notorious BIG has too much of it"},
+        {title: "Power", content: "Gangus Khan had hella of it"},
+        {title: "Mafuckin respect", content: "I got it"},
+      ]
+
+      React.render(
+        <Tabs items={topics} />, document.getElementById("tabs")
+      );
+    </script>
+  </body>
+</html>
