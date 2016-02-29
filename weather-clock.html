@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Weather Clock</title>
+    <script src="https://fb.me/react-0.13.3.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <style media="screen">
+
+    </style>
+    <div id="clock"></div>
+    <div id="weather"></div>
+
+    <script type="text/jsx">
+      var Clock = React.createClass({
+        getInitialState: function(){
+          return{time: new Date()};
+        },
+        componentDidMount: function(){
+          var that = this;
+          this.handle = setInterval(function(){
+             that.setState({time: new Date()});
+            //  console.log(that.state.time);
+          }, 1000);
+        },
+        componentWillUnmount: function(){
+          clearInterval(this.handle);
+          this.handle = 0;
+        },
+        render: function(){
+          var timeString = (this.state.time).toString();
+          return (
+            <div>
+              <p> Time: {timeString} </p>
+            </div>
+          );
+        }
+      });
+
+      var Weather = React.createClass({
+        getInitialState: function () {
+          return {lat: "", long: "", temp: ""};
+        },
+        componentDidMount: function () {
+          var geo = navigator.geolocation;
+          var that = this;
+
+          function setWeatherChecker(){
+            that.handle = setInterval(function () {
+              that.getCurrentWeather();
+            }, 1000);
+          }
+
+          function success(pos){
+            var lat = pos.coords.latitude.toString();
+            var long = pos.coords.longitude.toString();
+             that.setState({lat: lat, long: long});
+             setWeatherChecker();
+          }
+
+          geo.getCurrentPosition(success);
+        },
+        componentWillUnmount: function(){
+          clearInterval(this.handle);
+          this.handle = 0;
+        },
+        getCurrentWeather: function(){
+          var url = "http://api.openweathermap.org/data/2.5/weather?lat=" + this.state.lat + "&lon=" + this.state.long + "&APPID=645c5d39c7603f17e23fcaffcea1a3c1";
+          var that = this;
+          $.ajax({
+            url: url,
+            dataType: "json",
+            success: function(data){
+              ajaxResponse = data;
+              var tempInKelvin = parseInt(data.main.temp);
+              var tempFahrenheit = 1.8 * (tempInKelvin - 273) + 32;
+              that.setState({temp: tempFahrenheit});
+            },
+            error: function (msg) {
+              console.log(msg.statusText);
+            }
+          })
+        },
+
+        render: function () {
+          return(
+            <p> The Current temperature in your location is: {this.state.temp} degrees</p>
+          );
+        }
+      })
+
+      React.render(
+        <Clock />, document.getElementById('clock')
+      );
+      React.render(
+        <Weather />, document.getElementById('weather')
+      );
+
+    </script>
+  </body>
+</html>
