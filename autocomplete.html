@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Autocomplete - React</title>
+    <script src="https://fb.me/react-0.13.3.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <style media="screen">
+    </style>
+    <div id="autocomplete"></div>
+
+    <script type="text/jsx">
+      var Autocomplete = React.createClass({
+        getInitialState: function(){
+          return { searchString: "" };
+        },
+        populateInput: function(e){
+          this.setState({searchString: e.target.innerHTML});
+        },
+        handleChange: function(e) {
+          this.setState({searchString: e.target.value});
+        },
+        render: function(){
+          var that = this;
+          var matchedNames = this.props.names
+          var searchString = this.state.searchString.trim().toLowerCase();
+          if(searchString.length > 0){
+            matchedNames = matchedNames.filter(function(name){
+                return name.toLowerCase().match( searchString );
+            });
+          }
+
+          var matchList = matchedNames.map(function(el){
+            return <li onClick={that.populateInput} key={el}>{el}</li>
+          });
+
+          return(
+            <div>
+              <input
+                type="text"
+                onChange={this.handleChange} value={this.state.searchString}
+                />
+              <ul>
+                {matchList}
+              </ul>
+            </div>
+          );
+
+        }
+      })
+
+      var names = ["Alex", "George", "Jacob", "Alen"];
+
+      React.render(
+        <Autocomplete names={names} />, document.getElementById("autocomplete")
+      );
+    </script>
+  </body>
+</html>
